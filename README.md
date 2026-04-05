@@ -1,59 +1,218 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Undangan Nikah — Digital Wedding Invitation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A digital wedding invitation built with **Laravel 12** (API + Blade shell) and a **React 19** front end styled with **Tailwind CSS 4** and **Vite 7**. Guests can view event details, RSVP, leave messages, and see donation (bank) information.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Hero & countdown** — Loads event info from the API (`/api/event`).
+- **Gallery** — Uses static images under `public/images/`; optionally tries `/api/gallery` and falls back if that route is not implemented.
+- **Location** — Map link from the event record.
+- **RSVP** — `POST /api/rsvp` with Indonesian status values `hadir` / `tidak_hadir`.
+- **Guestbook** — List and submit messages via `/api/messages`.
+- **Donation** — Bank details from `/api/donations`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Layer | Technology |
+|--------|------------|
+| Backend | PHP 8.2+, Laravel 12 |
+| Frontend | React 19, Vite 7, Tailwind CSS 4 |
+| Database | SQLite by default (MySQL/PostgreSQL supported via `.env`) |
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP **8.2+** with extensions Laravel needs (`openssl`, `pdo`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `fileinfo`, etc.)
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) **18+** (20 LTS recommended) and npm
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Quick setup (recommended)
 
-## Laravel Sponsors
+From the project root:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer run setup
+```
 
-### Premium Partners
+This runs `composer install`, ensures `.env` exists, generates `APP_KEY`, runs migrations, installs npm packages, and builds front-end assets for production.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Then start the app:
 
-## Contributing
+```bash
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-## Code of Conduct
+## Manual setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1. Clone and install PHP dependencies
 
-## Security Vulnerabilities
+```bash
+git clone <your-repo-url>
+cd UndanganNikah-kamukapan--main
+composer install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 2. Environment
+
+```bash
+copy .env.example .env   # Windows PowerShell/CMD
+# or: cp .env.example .env  (macOS/Linux)
+
+php artisan key:generate
+```
+
+Edit `.env` as needed. Defaults in `.env.example` use **SQLite**.
+
+**SQLite file:** ensure the database file exists:
+
+```bash
+# macOS/Linux
+touch database/database.sqlite
+
+# Windows PowerShell
+New-Item -ItemType File -Path database\database.sqlite -Force
+```
+
+### 3. Database migrations
+
+```bash
+php artisan migrate
+```
+
+This creates tables: `events`, `rsvps`, `messages`, `donations`.
+
+### 4. Session, cache, and queue (important)
+
+`.env.example` sets `SESSION_DRIVER=database`, `CACHE_STORE=database`, and `QUEUE_CONNECTION=database`. Those drivers expect extra tables that are **not** included in this repo’s migrations.
+
+**Easiest local setup** — use file/array drivers so you can run without extra migrations:
+
+```env
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
+```
+
+**If you keep database drivers**, create and run the standard Laravel migrations for sessions, cache, and jobs (see [Laravel docs: session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache)), then `php artisan migrate` again.
+
+### 5. Front-end assets
+
+```bash
+npm install
+npm run dev          # development, with hot reload
+# or
+npm run build        # production build
+```
+
+**Vite dev server:** `vite.config.js` sets a fixed `server.host` (LAN IP). Change it to your machine’s IP, or use `host: true` / `'0.0.0.0'` if you access the dev server from another device on the network.
+
+### 6. Development: Laravel + Vite together
+
+```bash
+composer run dev
+```
+
+Runs `php artisan serve`, queue listener, `pail` logs, and `npm run dev` via `concurrently` (see `composer.json`).
+
+## Seed data and content
+
+### Event & donation records (required for full UI)
+
+There is **no** seeder for `events` or `donations`. Add at least one event (and optional donation rows) so Hero, Countdown, Location, and Donation sections show real data.
+
+Example with [Tinker](https://laravel.com/docs/artisan#tinker):
+
+```bash
+php artisan tinker
+```
+
+```php
+\App\Models\Event::create([
+    'title' => 'The Wedding of A & B',
+    'groom_name' => 'Nama Mempelai Pria',
+    'bride_name' => 'Nama Mempelai Wanita',
+    'event_date' => '2026-06-01',
+    'event_time' => '10:00:00',
+    'location_name' => 'Gedung / Alamat Acara',
+    'location_map_url' => 'https://maps.google.com/?q=...',
+]);
+
+\App\Models\Donation::create([
+    'bank_name' => 'Bank ABC',
+    'account_number' => '1234567890',
+    'account_holder' => 'Nama Pemilik Rekening',
+    'logo_url' => null,
+]);
+```
+
+### Default user seeder
+
+`DatabaseSeeder` creates a demo user with `User::factory()`. This project does **not** ship a `users` table migration. If `php artisan db:seed` fails, either add the default Laravel user migrations or comment out the user creation in `database/seeders/DatabaseSeeder.php` until you need authentication.
+
+### Gallery images
+
+Place images in `public/images/` (see `resources/js/components/Gallery.jsx` for expected paths). The optional `/api/gallery` endpoint is not defined in `routes/api.php`; the UI falls back to the built-in default list.
+
+## API reference
+
+Base URL: same origin as the app, with the `/api` prefix (Laravel default).
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/test` | Simple health string (`API OK`). |
+| GET | `/api/event` | First `events` row (JSON). |
+| POST | `/api/rsvp` | Create RSVP. Body: `name` (optional), `status` (`hadir` \| `tidak_hadir`), `guest_count` (optional, 1–10). |
+| GET | `/api/messages` | Latest 50 messages. |
+| POST | `/api/messages` | Create message. Body: `name` (optional), `message` (required), `send_to_whatsapp` (optional boolean). |
+| GET | `/api/donations` | All donation records. |
+
+### Example: RSVP (JSON)
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/rsvp ^
+  -H "Content-Type: application/json" ^
+  -d "{\"name\":\"Budi\",\"status\":\"hadir\",\"guest_count\":2}"
+```
+
+(On macOS/Linux, use `\` for line continuation and single-line `-d` if you prefer.)
+
+## Project layout (high level)
+
+```
+app/Http/Controllers/Api/   # RSVP, Message controllers; inline routes for event/donations
+resources/js/               # React app (app.jsx, components/)
+resources/views/welcome.blade.php  # Mounts #app and loads Vite bundle
+routes/api.php              # API routes
+routes/web.php              # Serves welcome view on /
+public/images/              # Static gallery assets
+database/migrations/        # events, rsvps, messages, donations
+```
+
+## Logging (production)
+
+`config/logging.php` uses environment-aware defaults: for example, when `APP_ENV=production` and `LOG_STACK` is unset, the stack may include `daily` and `slack`. Set `LOG_SLACK_WEBHOOK_URL` (and optionally `LOG_SLACK_LEVEL`) if you use Slack alerts; otherwise set `LOG_STACK` explicitly (e.g. `daily` only).
+
+## Tests
+
+```bash
+composer run test
+# or
+php artisan test
+```
+
+## Production checklist
+
+- Set `APP_ENV=production`, `APP_DEBUG=false`, and a strong `APP_KEY`.
+- Run `php artisan config:cache` and `php artisan route:cache` when appropriate.
+- Run `npm run build` and ensure the server serves `public/` as the document root.
+- Configure real mail (`MAIL_*`) if you send email.
+- Align `SESSION_DRIVER`, `CACHE_STORE`, and `QUEUE_CONNECTION` with migrations and infrastructure.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project inherits the **MIT** license from the Laravel application skeleton (see `composer.json`). Add or adjust a `LICENSE` file if you publish a fork with different terms.
+
+---
+
+**Note:** Replace `<your-repo-url>` with your actual GitHub repository URL after you push.
