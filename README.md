@@ -48,7 +48,7 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 ### 1. Clone and install PHP dependencies
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/RUckyTheGreat/UndanganNikah-kamukapan-
 cd UndanganNikah-kamukapan--main
 composer install
 ```
@@ -214,5 +214,3 @@ php artisan test
 This project inherits the **MIT** license from the Laravel application skeleton (see `composer.json`). Add or adjust a `LICENSE` file if you publish a fork with different terms.
 
 ---
-
-**Note:** Replace `<your-repo-url>` with your actual GitHub repository URL after you push.
